@@ -24,7 +24,6 @@ contract LeetcodeTelegram is FunctionsClient, ConfirmedOwner, AutomationCompatib
   uint256 public lastUpkeepTimeStamp;
   uint256 public upkeepCounter;
   uint256 public responseCounter;
-  uint256 public subid;
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
@@ -40,14 +39,12 @@ contract LeetcodeTelegram is FunctionsClient, ConfirmedOwner, AutomationCompatib
     address oracle,
     uint64 _subscriptionId,
     uint32 _fulfillGasLimit,
-    uint256 _updateInterval,
-    uint256 _subid
+    uint256 _updateInterval
   ) FunctionsClient(oracle) ConfirmedOwner(msg.sender) {
     updateInterval = _updateInterval;
     subscriptionId = _subscriptionId;
     fulfillGasLimit = _fulfillGasLimit;
     lastUpkeepTimeStamp = block.timestamp;
-    subid = _subid;
   }
 
   function generateRequest(
@@ -77,10 +74,12 @@ contract LeetcodeTelegram is FunctionsClient, ConfirmedOwner, AutomationCompatib
     requestCBOR = newRequestCBOR;
   }
 
+  // check for interval
   function checkUpkeep(bytes memory) public view override returns (bool upkeepNeeded, bytes memory) {
     upkeepNeeded = (block.timestamp - lastUpkeepTimeStamp) > updateInterval;
   }
 
+  // if interval has passed then execute the cf
   function performUpkeep(bytes calldata) external override {
     (bool upkeepNeeded, ) = checkUpkeep("");
     require(upkeepNeeded, "Time interval not met");

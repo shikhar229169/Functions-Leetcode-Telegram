@@ -35,7 +35,8 @@ const requestConfig = {
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env["PRIVATE_KEY"],
   // args can be accessed within the source code with `args[index]` (ie: args[0])
-  args: ["shikharagarwale7", "1683331200", "1"],
+  // args: ["shikharagarwale7", "1683331200", "1"],
+  args: ["harshit_2210"],
   // expected type of the returned value
   expectedReturnType: ReturnType.string,
 }
