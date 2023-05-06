@@ -11,7 +11,7 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/Autom
  * @notice This contract is a demonstration of using Functions.
  * @notice NOT FOR PRODUCTION USE
  */
-contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, AutomationCompatibleInterface {
+contract LeetcodeTelegram is FunctionsClient, ConfirmedOwner, AutomationCompatibleInterface {
   using Functions for Functions.Request;
 
   bytes public requestCBOR;
@@ -47,13 +47,6 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     lastUpkeepTimeStamp = block.timestamp;
   }
 
-  /**
-   * @notice Generates a new Functions.Request. This pure function allows the request CBOR to be generated off-chain, saving gas.
-   *
-   * @param source JavaScript source code
-   * @param secrets Encrypted secrets payload
-   * @param args List of arguments accessible from within the source code
-   */
   function generateRequest(
     string calldata source,
     bytes calldata secrets,
@@ -69,14 +62,6 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     return req.encodeCBOR();
   }
 
-  /**
-   * @notice Sets the bytes representing the CBOR-encoded Functions.Request that is sent when performUpkeep is called
-
-   * @param _subscriptionId The Functions billing subscription ID used to pay for Functions requests
-   * @param _fulfillGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` function
-   * @param _updateInterval Time interval at which Chainlink Automation should call performUpkeep
-   * @param newRequestCBOR Bytes representing the CBOR-encoded Functions.Request
-   */
   function setRequest(
     uint64 _subscriptionId,
     uint32 _fulfillGasLimit,
@@ -89,25 +74,12 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     requestCBOR = newRequestCBOR;
   }
 
-  /**
-   * @notice Used by Automation to check if performUpkeep should be called.
-   *
-   * The function's argument is unused in this example, but there is an option to have Automation pass custom data
-   * that can be used by the checkUpkeep function.
-   *
-   * Returns a tuple where the first element is a boolean which determines if upkeep is needed and the
-   * second element contains custom bytes data which is passed to performUpkeep when it is called by Automation.
-   */
+  // check for interval
   function checkUpkeep(bytes memory) public view override returns (bool upkeepNeeded, bytes memory) {
     upkeepNeeded = (block.timestamp - lastUpkeepTimeStamp) > updateInterval;
   }
 
-  /**
-   * @notice Called by Automation to trigger a Functions request
-   *
-   * The function's argument is unused in this example, but there is an option to have Automation pass custom data
-   * returned by checkUpkeep (See Chainlink Automation documentation)
-   */
+  // if interval has passed then execute the cf
   function performUpkeep(bytes calldata) external override {
     (bool upkeepNeeded, ) = checkUpkeep("");
     require(upkeepNeeded, "Time interval not met");
@@ -121,14 +93,6 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     latestRequestId = requestId;
   }
 
-  /**
-   * @notice Callback that is invoked once the DON has resolved the request or hit an error
-   *
-   * @param requestId The request ID, returned by sendRequest()
-   * @param response Aggregated response from the user code
-   * @param err Aggregated error from the user code or from the execution pipeline
-   * Either response or error parameter will be set, but never both
-   */
   function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
     latestResponse = response;
     latestError = err;
@@ -136,11 +100,6 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     emit OCRResponse(requestId, response, err);
   }
 
-  /**
-   * @notice Allows the Functions oracle address to be updated
-   *
-   * @param oracle New oracle address
-   */
   function updateOracleAddress(address oracle) public onlyOwner {
     setOracle(oracle);
   }

@@ -46,7 +46,7 @@ const setAutoRequest = async (contract, taskArgs) => {
 
   console.log(`Setting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
 
-  const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
+  const autoClientContractFactory = await ethers.getContractFactory("LeetcodeTelegram")
   const autoClientContract = await autoClientContractFactory.attach(contract)
 
   const unvalidatedRequestConfig = require(path.isAbsolute(taskArgs.configpath)
